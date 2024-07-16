@@ -1,0 +1,57 @@
+.MODEL SMALL
+.STACK 100H
+
+.DATA
+    MSG_1     DB  'Enter the Hex digit (A-F) : $'
+    MSG_2     DB  0DH,0AH,'The corresponding Decimal digit is : $'
+    MSG_ERROR DB  0DH,0AH,'Error: Invalid input! Please enter a valid hex digit (0-9, A-F).$'
+    HEX       DB  ?
+
+.CODE
+MAIN PROC
+    MOV AX, @DATA                
+    MOV DS, AX
+
+    MOV AH, 9
+    LEA DX, MSG_1             
+    INT 21H
+
+    MOV AH, 1                   
+    INT 21H
+    MOV HEX, AL                 
+    CMP HEX, '0'
+    JB INVALID_INPUT
+    CMP HEX, '9'
+    JBE HEX_OK
+    CMP HEX, 'A'
+    JB INVALID_INPUT
+    CMP HEX, 'F'
+    JA INVALID_INPUT
+
+HEX_OK:
+    SUB HEX, 11H                  
+    MOV AH, 9
+    LEA DX, MSG_2             
+    INT 21H
+
+    MOV AH, 2
+    sub al,30h
+    mov dl,al       
+    INT 21H
+                       
+    MOV DL, HEX
+    INT 21H
+
+    JMP END_PROGRAM
+
+INVALID_INPUT:
+    MOV AH, 9
+    LEA DX, MSG_ERROR
+    INT 21H
+
+END_PROGRAM:
+    MOV AH, 4CH         
+    INT 21H
+
+MAIN ENDP
+END MAIN
